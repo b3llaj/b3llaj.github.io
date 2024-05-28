@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en-GB">
+<head>
+    <meta charset="utf-8">
+    <title> #at-puzzle-club Monthly Leaderboard </title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="author" content="Bella Jones">
+    <meta name="description" content="Leaderboard for #at-puzzle-club quizzes">
+    <meta name="keywords" content="leaderboard, at-puzzle-club, puzzle, quiz, puzzle club">
+    <link rel="stylesheet" href="leaderboard.css" title="leaderboard">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-csv/1.0.11/jquery.csv.min.js"></script>
+<!--    <script src="leaderboard.js"></script>-->
+</head>
+<body>
+    <header>
+        <h1> <em>#at-puzzle-club's</em> Monthly Leaderboard </h1>
+    </header>
+    <button id="refreshButton">Refresh Leaderboard</button>
+    <div id="leaderboard"></div>
+
+    <script>
+        // Function to refresh leaderboard data
+        function refreshLeaderboard() {
+            $.ajax({
+                url: 'http://127.0.0.1:5000/refresh_leaderboard', // URL to your Python script for refreshing leaderboard data
+                type: 'GET',
+                success: function(response) {
+                    // Upon successful execution, reload the page to display updated leaderboard
+                    location.reload();
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error refreshing leaderboard:', error);
+                }
+            });
+        }
+
+        // Event listener for refresh button click
+        document.getElementById('refreshButton').addEventListener('click', function() {
+            refreshLeaderboard();
+        });
+
+        // Function to display leaderboard from CSV data
+        function displayLeaderboard(data) {
+            var leaderboardTable = '<table>';
+            leaderboardTable += '<tr><th>Position</th><th>Name</th><th>Total Points</th></tr>';
+
+            data.forEach(function(row, index) {
+                leaderboardTable += '<tr>';
+                leaderboardTable += '<td>' + row.position + '</td>';
+                leaderboardTable += '<td>' + row.name + '</td>';
+                leaderboardTable += '<td>' + row.total_pts + '</td>';
+                leaderboardTable += '</tr>';
+            });
+
+            leaderboardTable += '</table>';
+            document.getElementById('leaderboard').innerHTML = leaderboardTable;
+        }
+
+        // Function to load leaderboard data from CSV file
+        function loadLeaderboard() {
+            $.ajax({
+                url: 'leaderboard.csv', // URL to your CSV file containing leaderboard data
+                dataType: 'text',
+                success: function(response) {
+                    var data = $.csv.toObjects(response);
+                    displayLeaderboard(data);
+                },
+                error: function(xhr, status, error) {
+                    console.error('Error loading leaderboard:', error);
+                }
+            });
+        }
+
+        // Load leaderboard when the page loads
+        $(document).ready(function() {
+            loadLeaderboard();
+        });
+    </script>
+</body>
+</html>
