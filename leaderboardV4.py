@@ -69,7 +69,7 @@ def join_quiz_dfs(quiz_dfs):
 
     merged_df = merged_df.fillna(0)
 
-    merged_df['total_pts'] = merged_df.iloc[:, 2:].sum(axis=1)
+    merged_df['total_pts'] = merged_df.iloc[:, 2:].sum(axis=1).astype(int)
     merged_df.insert(1, 'total_pts', merged_df.pop('total_pts'))
 
     return merged_df
@@ -84,7 +84,8 @@ quiz_data_xl = read_format_xlsx()
 quiz_data_xl = join_quiz_dfs(quiz_data_xl)
 quiz_data_xl = remove_opted_out(quiz_data_xl)
 quiz_data_xl = quiz_data_xl.sort_values(by='total_pts', ascending=False)
-quiz_data_xl['position'] = range(1, len(quiz_data_xl) + 1)
+# quiz_data_xl['position'] = range(1, len(quiz_data_xl) + 1)
+quiz_data_xl['position'] = quiz_data_xl['total_pts'].rank(method='min', ascending=False).astype(int)
 quiz_data_xl.insert(0, 'position', quiz_data_xl.pop('position'))
 # quiz_data_xl.insert(1, 'total_pts', quiz_data_xl.pop('total_pts'))
 
