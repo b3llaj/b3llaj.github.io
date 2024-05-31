@@ -1,0 +1,23 @@
+/*LEADERBOARD WEBPAGE CSS FILE - JUST PRETTIFYING :)*/
+
+@import url('https://fonts.googleapis.com/css2?family=Inter&display=swap');
+
+body {
+    background: #282828;
+    color: #fff;
+    font-family: 'Inter', sans-serif;
+    font-size: 1rem;
+}
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+th, td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+th {
+    background-color: #444444;
+}
