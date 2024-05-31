@@ -218,4 +218,3 @@ function displayTable(data) {
 
     container.appendChild(table);
 }
-
