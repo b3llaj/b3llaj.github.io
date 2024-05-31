@@ -56,8 +56,10 @@ def read_format_xlsx():
 
             for i in range(len(dataframes[filename])):
                 if dataframes[filename]['days_late_' + filename][i] > 7:
+                    print(dataframes[filename]['days_late_' + filename][i])
+                    print(dataframes[filename]['pts_' + filename][i])
                     dataframes[filename]['pts_' + filename][i] = 0
-            # dataframes[filename].pop('days_late_' + filename)
+            dataframes[filename].pop('days_late_' + filename)
 
     return dataframes
 
