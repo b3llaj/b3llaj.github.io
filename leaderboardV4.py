@@ -82,7 +82,7 @@ def join_quiz_dfs(quiz_dfs):
 
     merged_df = merged_df.fillna(0)
 
-    merged_df['total_pts'] = merged_df.iloc[:, 2:-2].sum(axis=1).astype(int)
+    merged_df['total_pts'] = merged_df.iloc[:, 2:].sum(axis=1).astype(int)
     merged_df.insert(1, 'total_pts', merged_df.pop('total_pts'))
 
     return merged_df
