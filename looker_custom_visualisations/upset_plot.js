@@ -1,5 +1,4 @@
 looker.plugins.visualizations.add({
-  // 1. Define configuration options visible in the Looker UI "Edit" tab
   options: {
     max_sets: {
       type: "number",
@@ -8,17 +7,13 @@ looker.plugins.visualizations.add({
     }
   },
 
-  // 2. Initialize the chart container
   create: function(element, config) {
     element.innerHTML = "<div id='upset-container' style='width:100%; height:100%;'></div>";
   },
 
-  // 3. Render and update the visualization when data changes
   updateAsync: function(data, element, config, queryResponse, details, done) {
-    // Clear previous errors
     this.clearErrors();
 
-    // Verify required dimensions/measures are present
     if (queryResponse.fields.dimensions.length === 0 || queryResponse.fields.measures.length === 0) {
       this.addError({
         title: "Incomplete Data",
@@ -27,24 +22,51 @@ looker.plugins.visualizations.add({
       return;
     }
 
-    // Extract formatted data from queryResponse and data
     const container = document.getElementById("upset-container");
-    container.innerHTML = ""; // Clear existing render
+    container.innerHTML = "";
 
-    // Transform Looker row format into the array structure expected by UpSet.js
     const formattedData = data.map(row => {
-      const topicString = row[queryResponse.fields.dimensions[0].name].value || "";
-      const count = row[queryResponse.fields.measures[0].name].value || 0;
+      const topicVal = row[queryResponse.fields.dimensions[0].name].value;
+      let setsArray = [];
+
+      // Handle both raw string arrays from Looker and comma-separated strings
+      if (Array.isArray(topicVal)) {
+        setsArray = topicVal;
+      } else if (typeof topicVal === 'string') {
+        try {
+          // If it's a JSON string representation of an array
+          setsArray = JSON.parse(topicVal);
+        } catch (e) {
+          // Fallback to comma-split if plain text
+          setsArray = topicVal.split(",").map(t => t.trim());
+        }
+      }
 
       return {
-        // Split delimited topics string (e.g., "EV, Pricing") into set arrays
-        sets: topicString.split(",").map(t => t.trim()),
-        count: count
+        sets: setsArray,
+        count: row[queryResponse.fields.measures[0].name].value || 0
       };
     });
 
-    // Render using the UpSet.js library API
-    UpSetJS.renderCombinationChart(container, formattedData, { ... });
+    try {
+      const sets = UpSetJS.extractSets(formattedData);
+      UpSetJS.render(container, {
+        sets: sets,
+        width: element.clientWidth,
+        height: element.clientHeight,
+        combinations: {
+          type: 'intersection',
+          min: 1,
+          limit: config.max_sets || 10,
+          order: 'cardinality'
+        }
+      });
+    } catch (err) {
+      this.addError({
+        title: "Rendering Error",
+        message: err.message
+      });
+    }
 
     done();
   }
