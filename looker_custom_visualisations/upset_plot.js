@@ -44,7 +44,7 @@ looker.plugins.visualizations.add({
     });
 
     // Render using the UpSet.js library API
-    // UpSetJS.renderCombinationChart(container, formattedData, { ... });
+    UpSetJS.renderCombinationChart(container, formattedData, { ... });
 
     done();
   }
